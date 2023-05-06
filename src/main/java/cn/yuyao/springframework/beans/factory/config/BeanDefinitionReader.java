@@ -1,5 +1,6 @@
 package cn.yuyao.springframework.beans.factory.config;
 
+import cn.yuyao.springframework.beans.factory.support.BeanDefinitionRegistry;
 import cn.yuyao.springframework.core.io.Resource;
 import cn.yuyao.springframework.core.io.ResourceLoader;
 

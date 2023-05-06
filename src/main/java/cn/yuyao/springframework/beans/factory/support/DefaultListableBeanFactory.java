@@ -1,6 +1,8 @@
 package cn.yuyao.springframework.beans.factory.support;
 
+import cn.hutool.core.util.StrUtil;
 import cn.yuyao.springframework.beans.factory.config.BeanDefinition;
+import sun.swing.StringUIClientPropertyKey;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,5 +24,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     @Override
     public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
         beanDefinitionMap.put(beanName, beanDefinition);
+    }
+
+    @Override
+    public boolean containsBeanDefinition(String beanName) {
+        if (StrUtil.isEmpty(beanName)){
+            return false;
+        }
+        return this.beanDefinitionMap.containsKey(beanName);
     }
 }
