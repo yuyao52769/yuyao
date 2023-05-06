@@ -2,6 +2,7 @@ package cn.yuyao.springframework.core.io;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import cn.yuyao.springframework.util.ClassUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,12 +15,12 @@ public class ClassPathResource implements Resource {
     private ClassLoader classLoader;
 
     public ClassPathResource(String path) {
-        this.path = path;
+        this(path, null);
     }
 
     public ClassPathResource(String path, ClassLoader classLoader) {
         this.path = path;
-        this.classLoader = classLoader;
+        this.classLoader = classLoader != null ? classLoader : ClassUtils.getDefaultClassLoader();
     }
 
     @Override
