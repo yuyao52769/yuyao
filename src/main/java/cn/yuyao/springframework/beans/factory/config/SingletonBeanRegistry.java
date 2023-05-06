@@ -1,4 +1,4 @@
-package cn.yuyao.springframework.config;
+package cn.yuyao.springframework.beans.factory.config;
 
 public interface SingletonBeanRegistry {
 
