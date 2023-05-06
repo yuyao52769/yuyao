@@ -1,6 +1,7 @@
 package cn.yuyao.springframework.beans.factory.support;
 
 import cn.yuyao.springframework.beans.factory.config.BeanDefinitionReader;
+import cn.yuyao.springframework.core.io.DefaultResourceLoader;
 import cn.yuyao.springframework.core.io.ResourceLoader;
 
 public abstract class AbstractBeanDefinitionReader implements BeanDefinitionReader {
@@ -10,7 +11,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
     private ResourceLoader resourceLoader;
 
     protected AbstractBeanDefinitionReader(BeanDefinitionRegistry registry){
-        this.registry = registry;
+       this(registry, new DefaultResourceLoader());
     }
 
     public AbstractBeanDefinitionReader(BeanDefinitionRegistry registry, ResourceLoader resourceLoader){
