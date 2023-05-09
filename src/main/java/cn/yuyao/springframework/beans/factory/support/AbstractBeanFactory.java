@@ -3,6 +3,7 @@ package cn.yuyao.springframework.beans.factory.support;
 import cn.yuyao.springframework.beans.factory.config.BeanDefinition;
 import cn.yuyao.springframework.beans.factory.config.BeanPostProcessor;
 import cn.yuyao.springframework.beans.factory.config.ConfigurableBeanFactory;
+import cn.yuyao.springframework.util.ClassUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegister i
 
     /** BeanPostProcessors to apply in createBean */
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
+
+    private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
     @Override
     public Object getBean(String name) throws Exception {
@@ -55,6 +58,10 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegister i
     public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor){
         this.beanPostProcessors.remove(beanPostProcessor);
         this.beanPostProcessors.add(beanPostProcessor);
+    }
+
+    public ClassLoader getBeanClassLoader() {
+        return this.beanClassLoader;
     }
 
 }

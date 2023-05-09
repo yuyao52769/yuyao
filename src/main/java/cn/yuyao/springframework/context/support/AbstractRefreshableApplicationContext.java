@@ -9,8 +9,10 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
     private DefaultListableBeanFactory beanFactory;
 
     @Override
-    protected void refreshBeanFactory() {
-
+    protected void refreshBeanFactory() throws Exception {
+        DefaultListableBeanFactory beanFactory = createBeanFactory();
+        loadBeanDefinitions(beanFactory);
+        this.beanFactory = beanFactory;
     }
 
     private DefaultListableBeanFactory createBeanFactory (){

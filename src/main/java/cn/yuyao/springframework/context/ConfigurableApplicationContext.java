@@ -10,5 +10,9 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
      */
     void refresh() throws Exception;
 
+    void registerShutdownHook();
+
+    void close();
+
 
 }

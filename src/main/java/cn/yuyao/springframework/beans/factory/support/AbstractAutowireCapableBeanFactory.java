@@ -1,15 +1,17 @@
 package cn.yuyao.springframework.beans.factory.support;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.yuyao.springframework.beans.PropertyValue;
 import cn.yuyao.springframework.beans.PropertyValues;
-import cn.yuyao.springframework.beans.factory.InitializingBean;
+import cn.yuyao.springframework.beans.factory.*;
 import cn.yuyao.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import cn.yuyao.springframework.beans.factory.config.BeanDefinition;
 import cn.yuyao.springframework.beans.factory.config.BeanPostProcessor;
 import cn.yuyao.springframework.beans.factory.config.BeanReference;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
 
@@ -33,6 +35,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         } catch (Exception e) {
             throw new Exception("Instantiation of bean  failed", e);
         }
+
+        registerDisposableBeanIfNecessary(beanName, bean, beanDefinition);
+
         addSingleton(beanName, bean);
         return bean;
     }
@@ -69,14 +74,64 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
 
-    private void invokeInitMethods(String beanName, Object bean, BeanDefinition beanDefinition) throws Exception {
-        if (bean instanceof InitializingBean) {
-            ((InitializingBean) bean).afterPropertySet();
+    protected void registerDisposableBeanIfNecessary(String beanName, Object bean, BeanDefinition beanDefinition){
+        if (bean instanceof DisposableBean || StrUtil.isNotEmpty(beanDefinition.getDestroyMethodName())){
+            registerDisposableBean(beanName, new DisposableBeanAdapter(bean, beanName, beanDefinition));
         }
     }
 
 
+    /**
+     * 执行bean的初始化函数
+     *  1 ===>>> 首先执行 InitializingBean接口的 afterPropertySet方法
+     *  2 ===>>> 然后再执行， bean真正的initMethods方法
+     * @param beanName
+     * @param bean
+     * @param beanDefinition
+     * @throws Exception
+     */
+    private void invokeInitMethods(String beanName, Object bean, BeanDefinition beanDefinition) throws Exception {
+        // invoke InitializingBean
+        if (bean instanceof InitializingBean) {
+            ((InitializingBean) bean).afterPropertySet();
+        }
+
+        // invoke initMethod
+        String initMethodName = beanDefinition.getInitMethodName();
+        if (StrUtil.isNotEmpty(initMethodName)) {
+            Method initMethod = beanDefinition.getBeanClass().getMethod(initMethodName);
+            if (initMethod == null) {
+                throw new Exception("error find in initMethod: " + initMethodName);
+            }
+            initMethod.invoke(bean);
+        }
+
+    }
+
+
+    /**
+     * 初始化 bean
+     * @param beanName
+     * @param bean
+     * @param beanDefinition
+     * @return
+     * @throws Exception
+     */
     private Object initializeBean(String beanName, Object bean, BeanDefinition beanDefinition) throws Exception {
+
+        // invokeAwareMethods
+        if (bean instanceof Aware) {
+            if (bean instanceof BeanFactoryAware) {
+                ((BeanFactoryAware) bean).setBeanFactory(this);
+            }
+            if (bean instanceof BeanClassLoaderAware){
+                ((BeanClassLoaderAware) bean).setBeanClassLoader(getBeanClassLoader());
+            }
+            if (bean instanceof BeanNameAware) {
+                ((BeanNameAware) bean).setBeanName(beanName);
+            }
+        }
+
         Object wrapperBean = applyBeanPostProcessorsBeforeInitialization(bean, beanName);
         invokeInitMethods(beanName, wrapperBean, beanDefinition);
         Object finalWrapperBean = applyBeanPostProcessorsAfterInitialization(wrapperBean, beanName);
@@ -84,6 +139,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
 
+    /**
+     * 执行 BeanPostProcessor的前置操作
+     * @param existingBean
+     * @param beanName
+     * @return
+     * @throws Exception
+     */
     @Override
     public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName) throws Exception {
         Object result = existingBean;
@@ -95,6 +157,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         return result;
     }
 
+    /**
+     * 执行 BeanPostProcessor的后置操作
+     * @param existingBean
+     * @param beanName
+     * @return
+     * @throws Exception
+     */
     @Override
     public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName) throws Exception {
         Object result = existingBean;
