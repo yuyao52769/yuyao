@@ -1,7 +1,5 @@
 package cn.yuyao.springframework.beans.factory;
 
-import cn.yuyao.springframework.beans.factory.BeanFactory;
-
 import java.util.Map;
 
 public interface ListableBeanFactory extends BeanFactory {
