@@ -11,6 +11,8 @@ public class DefaultSingletonBeanRegister implements SingletonBeanRegistry {
 
     private Map<String, Object> singletonObjects = new HashMap<String, Object>();
 
+    protected static final Object NULL_OBJECT = new Object();
+
     private Map<String, DisposableBeanAdapter> disposableBeans = new HashMap<>();
 
     @Override
